@@ -12,9 +12,9 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (isDashboardPage && !session?.user) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
-  }
+  // if (isDashboardPage && !session?.user) {
+  //   return NextResponse.redirect(new URL("/sign-in", request.url));
+  // }
 
   return NextResponse.next();
 }
