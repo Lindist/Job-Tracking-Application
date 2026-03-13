@@ -138,7 +138,7 @@ function DroppableColumn({
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setIsRenaming(false)}>Cancel</Button>
-                    <Button onClick={handleRename} className="bg-blue-700" disabled={!newName.trim()}>Save</Button>
+                    <Button onClick={handleRename} className="bg-blue-700 text-white" disabled={!newName.trim()}>Save</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
