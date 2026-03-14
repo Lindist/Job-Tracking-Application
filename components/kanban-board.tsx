@@ -18,6 +18,7 @@ import {
 } from "./ui/alert-dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Spinner } from "./ui/spinner";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
 import { useState } from "react";
@@ -71,21 +72,33 @@ function DroppableColumn({
         column.jobApplications?.sort((a, b) => a.order - b.order) || [];
     const [defualtOpen, setdefualtOpen] = useState<boolean>(false);
     const [isRenaming, setIsRenaming] = useState(false);
+    const [isRenamingLoading, setIsRenamingLoading] = useState(false);
     const [newName, setNewName] = useState(column.name);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isDeletingLoading, setIsDeletingLoading] = useState(false);
 
     async function handleRename() {
         if (!newName.trim()) return;
-        const result = await renameColumn(column._id, newName);
-        if (!result.error) {
-            setIsRenaming(false);
+        setIsRenamingLoading(true);
+        try {
+            const result = await renameColumn(column._id, newName);
+            if (!result.error) {
+                setIsRenaming(false);
+            }
+        } finally {
+            setIsRenamingLoading(false);
         }
     }
 
     async function handleDelete() {
-        const result = await deleteColumn(column._id, boardId);
-        if (!result.error) {
-            setIsDeleting(false);
+        setIsDeletingLoading(true);
+        try {
+            const result = await deleteColumn(column._id, boardId);
+            if (!result.error) {
+                setIsDeleting(false);
+            }
+        } finally {
+            setIsDeletingLoading(false);
         }
     }
     const { setNodeRef, isOver } = useDroppable({
@@ -156,7 +169,9 @@ function DroppableColumn({
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setIsRenaming(false)}>Cancel</Button>
-                    <Button onClick={handleRename} className="bg-blue-700 text-white" disabled={!newName.trim()}>Save</Button>
+                    <Button onClick={handleRename} className="bg-blue-700 text-white" disabled={!newName.trim() || isRenamingLoading}>
+                        {isRenamingLoading ? <div className="flex items-center gap-2">Saving <Spinner /></div> : "Save"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -173,8 +188,8 @@ function DroppableColumn({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
+                    <AlertDialogAction disabled={isDeletingLoading} onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        {isDeletingLoading ? <div className="flex items-center gap-2">Deleting <Spinner /></div> : "Delete"}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

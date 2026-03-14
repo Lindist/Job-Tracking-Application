@@ -16,6 +16,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import React, { useEffect, useState } from "react";
 import { createJobApplication } from "@/lib/actions/job-applications";
+import { Spinner } from "./ui/spinner";
 
 interface CreateJobApplicationDialogProps {
     columnId: string;
@@ -46,9 +47,11 @@ export default function CreateJobApplicationDialog({ columnId, boardId, defualtO
         }
     }, [defualtOpen, onOpenHandled]);
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+    const [isLoading, setIsLoading] = useState(false);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const result = await createJobApplication({
                 ...formData,
@@ -68,12 +71,14 @@ export default function CreateJobApplicationDialog({ columnId, boardId, defualtO
             }
         } catch (error) {
             console.error("Error creating job application:", error);
+        } finally {
+            setIsLoading(false);
         }
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" className="mb-4">
                     <Plus className="h-4 w-4" />
                     Add Job
                 </Button>
@@ -190,7 +195,9 @@ export default function CreateJobApplicationDialog({ columnId, boardId, defualtO
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" className="bg-blue-500 text-white">Add Application</Button>
+                        <Button type="submit" disabled={isLoading} className="bg-blue-500 text-white">
+                            {isLoading ? <div className="flex items-center gap-2">Adding Application <Spinner /></div> : "Add Application"}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

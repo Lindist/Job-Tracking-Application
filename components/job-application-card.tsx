@@ -23,6 +23,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import React, { useState } from "react";
 import { deleteJobApplication, updateJobApplication } from "@/lib/actions/job-applications";
+import { Spinner } from "./ui/spinner";
 
 interface JobApplicationCardProps {
   job: JobApplication;
@@ -47,9 +48,12 @@ export default function JobApplicationCard({
         tags: job.tags?.join(", ") || "",
         description: job.description || "",
     });
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     async function handleUpdate(e: React.FormEvent) {
         e.preventDefault();
+        setIsUpdating(true);
         try {
         const result = await updateJobApplication(job._id, {
             ...formData,
@@ -64,10 +68,13 @@ export default function JobApplicationCard({
         }
         } catch (err) {
         console.error("Failed to move job application: ", err);
+        } finally {
+            setIsUpdating(false);
         }
     }
 
     async function handleDelete() {
+        setIsDeleting(true);
         try {
         const result = await deleteJobApplication(job._id);
 
@@ -76,6 +83,8 @@ export default function JobApplicationCard({
         }
         } catch (err) {
         console.error("Failed to move job application: ", err);
+        } finally {
+            setIsDeleting(false);
         }
     }
 
@@ -158,10 +167,14 @@ export default function JobApplicationCard({
                         )}
                         <DropdownMenuItem
                             className="text-destructive"
-                            onClick={() => handleDelete()}
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                handleDelete();
+                            }}
+                            disabled={isDeleting}
                         >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            {isDeleting ? <Spinner className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            {isDeleting ? "Deleting..." : "Delete"}
                         </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -278,10 +291,13 @@ export default function JobApplicationCard({
                         type="button"
                         variant="outline"
                         onClick={() => setIsEditing(false)}
+                        disabled={isUpdating}
                     >
                         Cancel
                     </Button>
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" disabled={isUpdating}>
+                        {isUpdating ? <div className="flex items-center gap-2">Saving <Spinner /></div> : "Save Changes"}
+                    </Button>
                     </DialogFooter>
                 </form>
                 </DialogContent>

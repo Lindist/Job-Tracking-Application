@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth/auth-client"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function SignUpPage() {
     const [name, setName] = useState("");
@@ -98,7 +99,7 @@ export default function SignUpPage() {
                             className="w-full bg-primary hover:bg-primary/90"
                             disabled={loading}
                         >
-                            {loading ? "Creating account..." : "Sign Up"}
+                            {loading ? <div className="flex items-center gap-2">Creating account <Spinner /></div> : "Sign Up"}
                         </Button>
                         <p className="text-center text-sm text-gray-600">Already have an account? 
                             <Link className="ml-1 font-medium text-primary hover:underline" href="/sign-in">Sign In</Link>

@@ -16,6 +16,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import React, { useState } from "react";
 import { createColumn } from "@/lib/actions/columns";
+import { Spinner } from "./ui/spinner";
 
 interface CreateColumnDialogProps {
     boardId: string;
@@ -28,11 +29,13 @@ const INITIAL_FORM_DATA = {
 export default function CreateColumnDialog({ boardId }
     : CreateColumnDialogProps) {
     const [open, setOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const result = await createColumn({
                 ...formData,
@@ -47,6 +50,8 @@ export default function CreateColumnDialog({ boardId }
             }
         } catch (error) {
             console.error("Error creating column:", error);
+        } finally {
+            setIsLoading(false);
         }
     }
     return (
@@ -87,7 +92,9 @@ export default function CreateColumnDialog({ boardId }
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" className="bg-blue-500 text-white">Add Column</Button>
+                        <Button type="submit" disabled={isLoading} className="bg-blue-500 text-white">
+                            {isLoading ? <div className="flex items-center gap-2">Adding <Spinner /></div> : "Add Column"}
+                        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
