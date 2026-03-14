@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
+import CreateColumnDialog from "./create-column-dialog";
 import { useState } from "react";
 import { renameColumn } from "@/lib/actions/columns";
 import { useBoard } from "@/lib/hooks/useBoard";
@@ -315,6 +316,9 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
                             sortedColumns={sortedColumns}
                         ></DroppableColumn>;
                     })}
+                    <div className="min-w-[300px] flex-shrink-0 flex items-start">
+                        <CreateColumnDialog boardId={board._id as string} />
+                    </div>
                 </div>
             </div>
         <DragOverlay>

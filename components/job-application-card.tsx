@@ -92,7 +92,7 @@ export default function JobApplicationCard({
     return (
         <>
             <Card
-                className="cursor-pointer transition-shadow hover:shadow-lg bg-white group shadow-sm"
+                className="cursor-pointer transition-shadow hover:shadow-lg bg-white group shadow-sm max-w-[300px]"
                 {...dragHandleProps}
             >
                 <CardContent className="p-4">
