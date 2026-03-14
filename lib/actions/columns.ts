@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "../auth/auth";
 import connectDB from "../db";
-import { Column, Board } from "../models";
+import { Column, Board, JobApplication } from "../models";
 
 export async function renameColumn(columnId: string, newName: string) {
   const session = await getSession();
@@ -86,4 +86,45 @@ export async function createColumn(data: { name: string; boardId: string }) {
   revalidatePath("/dashboard");
 
   return { data: JSON.parse(JSON.stringify(newColumn)) };
+}
+
+export async function deleteColumn(columnId: string, boardId: string) {
+  const session = await getSession();
+
+  if (!session?.user) {
+    return { error: "Unauthorized" };
+  }
+
+  await connectDB();
+
+  // Verify the column exists and belongs to the board
+  const column = await Column.findOne({ _id: columnId, boardId });
+  if (!column) {
+    return { error: "Column not found" };
+  }
+
+  // Verify board ownership
+  const board = await Board.findOne({
+    _id: boardId,
+    userId: session.user.id,
+  });
+
+  if (!board) {
+    return { error: "Unauthorized" };
+  }
+
+  // Delete all job applications in this column
+  await JobApplication.deleteMany({ columnId: columnId });
+
+  // Remove the column reference from the board
+  await Board.findByIdAndUpdate(boardId, {
+    $pull: { columns: columnId }
+  });
+
+  // Finally delete the column itself
+  await Column.deleteOne({ _id: columnId });
+
+  revalidatePath("/dashboard");
+
+  return { success: true };
 }

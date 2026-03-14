@@ -6,13 +6,22 @@ import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import CreateJobApplicationDialog from "./create-job-dialog";
 import JobApplicationCard from "./job-application-card";
-import CreateColumnDialog from "./create-column-dialog";
 import { useState } from "react";
-import { renameColumn } from "@/lib/actions/columns";
+import { renameColumn, deleteColumn } from "@/lib/actions/columns";
 import { useBoard } from "@/lib/hooks/useBoard";
 import { closestCorners, DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -63,12 +72,20 @@ function DroppableColumn({
     const [defualtOpen, setdefualtOpen] = useState<boolean>(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [newName, setNewName] = useState(column.name);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     async function handleRename() {
         if (!newName.trim()) return;
         const result = await renameColumn(column._id, newName);
         if (!result.error) {
             setIsRenaming(false);
+        }
+    }
+
+    async function handleDelete() {
+        const result = await deleteColumn(column._id, boardId);
+        if (!result.error) {
+            setIsDeleting(false);
         }
     }
     const { setNodeRef, isOver } = useDroppable({
@@ -98,7 +115,7 @@ function DroppableColumn({
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setdefualtOpen(true)}>Add Job</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setNewName(column.name); setIsRenaming(true); }}>Rename Column</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Delete Column</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => setIsDeleting(true)}>Delete Column</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -143,6 +160,25 @@ function DroppableColumn({
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will permanently delete the <strong>{column.name}</strong> column and 
+                        <strong> ALL {sortedJobs.length} job applications</strong> inside it. 
+                        This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
         </>
     )
 }
@@ -316,9 +352,6 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
                             sortedColumns={sortedColumns}
                         ></DroppableColumn>;
                     })}
-                    <div className="min-w-[300px] flex-shrink-0 flex items-start">
-                        <CreateColumnDialog boardId={board._id as string} />
-                    </div>
                 </div>
             </div>
         <DragOverlay>
