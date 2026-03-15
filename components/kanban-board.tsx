@@ -110,7 +110,7 @@ function DroppableColumn({
     });
     return (
         <>
-            <Card className="min-w-[300px] flex-shrink-0 shadow-md p-0 rounded-t-lg">
+            <Card className="min-w-[300px] max-sm:w-full max-sm:min-w-px flex-shrink-0 shadow-md p-0 rounded-t-lg">
             <CardHeader className={`${config.color} text-white pb-3 pt-3 rounded-t-lg rounded-b-none`} ref={setNodeRef}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -353,7 +353,7 @@ export default function KanbanBoard({ board, userId }: KanbanBoardProps) {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}>
             <div className="space-y-4">
-                <div className="flex gap-4 overflow-x-auto pb-4">
+                <div className="flex flex-wrap gap-4 max-w-6xl mx-auto max-sm:w-full max-sm:overflow-x-auto">
                     {sortedColumns.map((column, index) => {
                         const config = COLUMN_CONFIG[index] || {
                             color: "bg-gray-500",

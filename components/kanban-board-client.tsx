@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { Board } from "@/lib/models/models.types";
+import { Spinner } from "./ui/spinner";
 
 const KanbanBoard = dynamic(() => import("@/components/kanban-board"), {
   ssr: false,
-  loading: () => <p>Loading board...</p>,
+  loading: () => <div className="flex items-center gap-2 justify-center">Loading board <Spinner /></div>,
 });
 
 interface KanbanBoardClientProps {
