@@ -8,7 +8,7 @@ export default function SignOutButton() {
   const router = useRouter();
 
   return (
-    <DropdownMenuItem
+    <DropdownMenuItem variant="destructive"
       onClick={async () => {
         const result = await signOut();
         if (result.data) {
